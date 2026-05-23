@@ -898,7 +898,7 @@ button:active {
 .floating-outline-btn {
   position: absolute;
   bottom: 36px; /* ステータスバー(28px)+パディング(8px)の上に綺麗に配置 */
-  left: 16px;
+  left: 8px;
   width: 44px;
   height: 44px;
   border-radius: 8px; /* 四角のフローティングアイコン */
