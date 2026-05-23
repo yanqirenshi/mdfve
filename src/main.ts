@@ -39,6 +39,7 @@ let outlineListEl: HTMLElement;
 let workspaceEl: HTMLElement;
 let btnFloatingOutlineEl: HTMLElement;
 let btnCloseSidebarEl: HTMLElement;
+let btnCloseSidebarBottomEl: HTMLElement;
 
 // ==========================================
 // Markdown レンダリング ＆ 統計情報更新
@@ -449,6 +450,10 @@ function setupUI() {
     setOutlineVisibility(false);
   });
 
+  btnCloseSidebarBottomEl.addEventListener("click", () => {
+    setOutlineVisibility(false);
+  });
+
   // テーマ切り替え (吹き出し内のボタン)
   const themeOptions = document.querySelectorAll(".theme-option");
   themeOptions.forEach(btn => {
@@ -583,6 +588,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   workspaceEl = document.querySelector(".workspace")!;
   btnFloatingOutlineEl = document.getElementById("btn-floating-outline")!;
   btnCloseSidebarEl = document.getElementById("btn-close-sidebar")!;
+  btnCloseSidebarBottomEl = document.getElementById("btn-close-sidebar-bottom")!;
 
   // UI セットアップ
   setupUI();

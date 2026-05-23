@@ -310,6 +310,41 @@ button:active {
   padding: 12px 8px;
 }
 
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-footer-close-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease, transform 0.1s;
+}
+
+.sidebar-footer-close-btn:hover {
+  background-color: var(--active-btn-bg);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.sidebar-footer-close-btn:active {
+  transform: scale(0.98);
+}
+
 .outline-item {
   display: block;
   padding: 6px 12px;
