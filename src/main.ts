@@ -391,21 +391,31 @@ function setupUI() {
   const btnSplit = document.getElementById("btn-view-split")!;
   const btnPreview = document.getElementById("btn-view-preview")!;
 
+  const btnFloatPreview = document.getElementById("btn-float-view-preview")!;
+  const btnFloatSplit = document.getElementById("btn-float-view-split")!;
+  const btnFloatEditor = document.getElementById("btn-float-view-editor")!;
+
   const setViewMode = (mode: "editor" | "split" | "preview") => {
     workspaceEl.classList.remove("mode-editor", "mode-preview");
     btnEditor.classList.remove("active");
     btnSplit.classList.remove("active");
     btnPreview.classList.remove("active");
+    btnFloatEditor.classList.remove("active");
+    btnFloatSplit.classList.remove("active");
+    btnFloatPreview.classList.remove("active");
 
     if (mode === "editor") {
       workspaceEl.classList.add("mode-editor");
       btnEditor.classList.add("active");
+      btnFloatEditor.classList.add("active");
     } else if (mode === "preview") {
       workspaceEl.classList.add("mode-preview");
       btnPreview.classList.add("active");
+      btnFloatPreview.classList.add("active");
     } else {
       // split モード
       btnSplit.classList.add("active");
+      btnFloatSplit.classList.add("active");
     }
   };
 
@@ -417,6 +427,16 @@ function setupUI() {
   });
   btnPreview.addEventListener("click", () => {
     setViewMode("preview");
+  });
+
+  btnFloatPreview.addEventListener("click", () => {
+    setViewMode("preview");
+  });
+  btnFloatSplit.addEventListener("click", () => {
+    setViewMode("split");
+  });
+  btnFloatEditor.addEventListener("click", () => {
+    setViewMode("editor");
   });
   
   // 初期表示は分割表示

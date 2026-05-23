@@ -936,3 +936,67 @@ button:active {
   border-color: #ff007f;
   box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
 }
+
+/* 画面上部中央の表示切替フローティングボタン */
+.floating-view-toggle-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: 8px; /* 角丸のコンテナ */
+  box-shadow: 0 4px 12px var(--shadow);
+  z-index: 100;
+  gap: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.view-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px; /* 四角（角丸）のボタン */
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease, transform 0.1s;
+  padding: 0;
+}
+
+.view-toggle-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent-color);
+}
+
+.view-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.view-toggle-btn.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* サイバーパンク用の表示切替ボタンカスタマイズ */
+.theme-cyberpunk .view-toggle-btn.active {
+  color: #00ffcc;
+  background-color: var(--bg-tertiary);
+  border: 1px solid #ff007f;
+  box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
+}
+
+.theme-cyberpunk .view-toggle-btn:hover {
+  color: #ff007f;
+}
+
