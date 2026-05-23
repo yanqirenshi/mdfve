@@ -940,30 +940,30 @@ button:active {
 /* 画面上部中央の表示切替フローティングボタン */
 .floating-view-toggle-bar {
   position: absolute;
-  top: 16px;
+  top: 8px; /* FVTの下部マージン(8px)と一致させる */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  padding: 4px;
-  border-radius: 8px; /* 角丸のコンテナ */
+  padding: 2px;
+  border-radius: 6px; /* 角丸のコンテナ */
   box-shadow: 0 4px 12px var(--shadow);
   z-index: 100;
-  gap: 4px;
+  gap: 2px;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
 .view-toggle-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px; /* 四角（角丸）のボタン */
+  width: 22px; /* 従来の36pxから大幅に縮小し、FVTボタン(44px)のちょうど半分のサイズに設定 */
+  height: 22px;
+  border-radius: 4px; /* 四角（角丸）のボタン */
   background: transparent;
   border: none;
   color: var(--text-primary);
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 10px; /* フォントサイズも合わせて縮小 */
   display: flex;
   align-items: center;
   justify-content: center;
