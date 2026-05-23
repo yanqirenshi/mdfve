@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDFVE - Markdown エディタ ＆ ビューア</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div id="app">
+
+
+      <!-- メインワークスペース -->
+      <div class="workspace">
+        <!-- 目次サイドバー (初期は非表示) -->
+        <aside id="outline-sidebar" class="sidebar hidden">
+          <div class="sidebar-header">
+            <h3>ドキュメント目次</h3>
+          </div>
+          <div id="outline-list" class="sidebar-content">
+            <!-- 動的に目次が生成されます -->
+          </div>
+        </aside>
+
+        <!-- エディタパネル -->
+        <div class="editor-pane" id="editor-pane">
+          <textarea id="editor" placeholder="ここに Markdown を入力してください..." spellcheck="false"></textarea>
+        </div>
+
+        <!-- ドラッグ用バー (分割幅リサイザー) -->
+        <div class="resizer" id="drag-bar"></div>
+
+        <!-- プレビューパネル -->
+        <div class="preview-pane" id="preview-pane">
+          <div id="preview" class="markdown-body">
+            <!-- レンダリングされた Markdown が入ります -->
+          </div>
+        </div>
+      </div>
+
+      <!-- フローティング メニューバー -->
+      <div class="floating-menu-bar">
+        <!-- ファイル操作 (F) -->
+        <div class="menu-item-container">
+          <div id="popup-file" class="menu-popup hidden">
+            <button id="btn-new" class="popup-item" title="新規作成 (Ctrl+N)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              <span>新規作成 (Ctrl+N)</span>
+            </button>
+            <button id="btn-open" class="popup-item" title="ファイルを開く (Ctrl+O)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span>ファイルを開く (Ctrl+O)</span>
+            </button>
+            <button id="btn-save" class="popup-item" title="上書き保存 (Ctrl+S)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>上書き保存 (Ctrl+S)</span>
+            </button>
+            <button id="btn-saveas" class="popup-item" title="別名で保存 (Ctrl+Shift+S)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+              <span>別名で保存</span>
+            </button>
+          </div>
+          <button id="btn-menu-file" class="circle-btn" title="ファイル操作 (F)">F</button>
+        </div>
+
+        <!-- 表示設定 (V) -->
+        <div class="menu-item-container">
+          <div id="popup-view" class="menu-popup hidden">
+            <div class="popup-section">
+              <span class="section-title">表示モード</span>
+              <button id="btn-view-editor" class="popup-item" title="エディタのみ">エディタ</button>
+              <button id="btn-view-split" class="popup-item" title="分割表示">分割表示</button>
+              <button id="btn-view-preview" class="popup-item" title="プレビューのみ">プレビュー表示</button>
+            </div>
+            <div class="popup-divider"></div>
+            <div class="popup-section">
+              <span class="section-title">プレビュー設定</span>
+              <button id="btn-toggle-width" class="popup-item" title="表示幅の切り替え (標準 / 広い)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 12l4-4m-4 4l4 4m12-4l-4-4m4 4l-4 4"/></svg>
+                <span id="width-label">標準幅</span>
+              </button>
+              <button id="btn-toggle-outline" class="popup-item" title="目次の表示/非表示">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <span>目次を表示</span>
+              </button>
+            </div>
+          </div>
+          <button id="btn-menu-view" class="circle-btn" title="表示設定 (V)">V</button>
+        </div>
+
+        <!-- テーマ設定 (T) -->
+        <div class="menu-item-container">
+          <div id="popup-theme" class="menu-popup hidden">
+            <button class="theme-option popup-item" data-theme="theme-light">
+              <span class="theme-color-preview light"></span>
+              <span>ライトテーマ</span>
+            </button>
+            <button class="theme-option popup-item" data-theme="theme-dark">
+              <span class="theme-color-preview dark"></span>
+              <span>ダークテーマ</span>
+            </button>
+            <button class="theme-option popup-item" data-theme="theme-sepia">
+              <span class="theme-color-preview sepia"></span>
+              <span>セピアテーマ</span>
+            </button>
+            <button class="theme-option popup-item" data-theme="theme-cyberpunk">
+              <span class="theme-color-preview cyberpunk"></span>
+              <span>サイバーパンク</span>
+            </button>
+          </div>
+          <button id="btn-menu-theme" class="circle-btn" title="テーマ設定 (T)">T</button>
+        </div>
+      </div>
+
+      <!-- ステータスバー (下部) -->
+      <footer class="statusbar">
+        <div class="statusbar-left">
+          <span id="filepath-display">新規ファイル</span>
+        </div>
+        <div class="statusbar-center">
+          <span id="char-count">0 文字</span>
+          <span class="divider">|</span>
+          <span id="word-count">0 単語</span>
+          <span class="divider">|</span>
+          <span id="read-time">読了目安: 0 分</span>
+        </div>
+        <div class="statusbar-right">
+          <span id="autosave-status" class="status-indicator">自動保存: オフ</span>
+          <span class="divider">|</span>
+          <span id="active-theme">ダークテーマ</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
