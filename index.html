@@ -18,6 +18,12 @@
         <aside id="outline-sidebar" class="sidebar hidden">
           <div class="sidebar-header">
             <h3>ドキュメント目次</h3>
+            <button id="btn-close-sidebar" class="sidebar-close-btn" title="目次を閉じる">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
           <div id="outline-list" class="sidebar-content">
             <!-- 動的に目次が生成されます -->
@@ -39,6 +45,18 @@
           </div>
         </div>
       </div>
+
+      <!-- 画面左下のフローティング目次アイコン -->
+      <button id="btn-floating-outline" class="floating-outline-btn" title="目次を表示">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      </button>
 
       <!-- フローティング メニューバー -->
       <div class="floating-menu-bar">

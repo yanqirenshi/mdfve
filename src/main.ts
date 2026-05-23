@@ -37,6 +37,8 @@ let activeThemeEl: HTMLElement;
 let outlineSidebarEl: HTMLElement;
 let outlineListEl: HTMLElement;
 let workspaceEl: HTMLElement;
+let btnFloatingOutlineEl: HTMLElement;
+let btnCloseSidebarEl: HTMLElement;
 
 // ==========================================
 // Markdown レンダリング ＆ 統計情報更新
@@ -421,9 +423,30 @@ function setupUI() {
 
   // 目次の表示/非表示トグル
   const btnToggleOutline = document.getElementById("btn-toggle-outline")!;
+
+  const setOutlineVisibility = (visible: boolean) => {
+    if (visible) {
+      outlineSidebarEl.classList.remove("hidden");
+      btnToggleOutline.classList.add("active");
+      btnFloatingOutlineEl.classList.add("hidden");
+    } else {
+      outlineSidebarEl.classList.add("hidden");
+      btnToggleOutline.classList.remove("active");
+      btnFloatingOutlineEl.classList.remove("hidden");
+    }
+  };
+
   btnToggleOutline.addEventListener("click", () => {
-    outlineSidebarEl.classList.toggle("hidden");
-    btnToggleOutline.classList.toggle("active");
+    const isHidden = outlineSidebarEl.classList.contains("hidden");
+    setOutlineVisibility(isHidden);
+  });
+
+  btnFloatingOutlineEl.addEventListener("click", () => {
+    setOutlineVisibility(true);
+  });
+
+  btnCloseSidebarEl.addEventListener("click", () => {
+    setOutlineVisibility(false);
   });
 
   // テーマ切り替え (吹き出し内のボタン)
@@ -558,6 +581,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   outlineSidebarEl = document.getElementById("outline-sidebar")!;
   outlineListEl = document.getElementById("outline-list")!;
   workspaceEl = document.querySelector(".workspace")!;
+  btnFloatingOutlineEl = document.getElementById("btn-floating-outline")!;
+  btnCloseSidebarEl = document.getElementById("btn-close-sidebar")!;
 
   // UI セットアップ
   setupUI();
