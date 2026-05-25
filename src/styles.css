@@ -1064,6 +1064,8 @@ button:active {
   cursor: pointer;
   position: relative;
   user-select: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ヘッダーの左側に矢印を表示する */

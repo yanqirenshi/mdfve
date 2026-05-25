@@ -332,6 +332,7 @@ function updateOutline() {
     // 子（サブ見出し）を持っているか確認
     const hasChildren = wrapper.querySelector(".markdown-section-wrapper") !== null;
     const isCollapsed = collapsedTOCHeadings.has(path);
+    console.log(`[TOC Debug] Path: "${path}", Level: ${level}, HasChildren: ${hasChildren}`);
 
     // 目次項目のコンテナを作成
     const itemWrapper = document.createElement("div");
@@ -341,7 +342,7 @@ function updateOutline() {
     }
 
     // 折り畳みボタン
-    const foldBtn = document.createElement("button");
+    const foldBtn = document.createElement("span");
     foldBtn.className = "outline-fold-btn";
     if (hasChildren) {
       foldBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
