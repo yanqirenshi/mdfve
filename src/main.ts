@@ -21,6 +21,10 @@ let isDirty = false;
 let isAutosaveEnabled = true;
 let autoSaveTimeout: number | undefined;
 
+// 折り畳み状態管理用のSet (階層パス level:見出し名 をキーにする)
+const collapsedTOCHeadings = new Set<string>();
+const collapsedPreviewHeadings = new Set<string>();
+
 // DOM 要素への参照
 let editorEl: HTMLTextAreaElement;
 let previewEl: HTMLElement;
@@ -50,10 +54,146 @@ async function renderMarkdown() {
   const htmlContent = await marked.parse(markdownText);
   previewEl.innerHTML = htmlContent;
 
+  // HTMLを階層構造に再構築 (折り畳み機能のため)
+  restructurePreviewDOM();
+
   // PrismJS を用いてコードブロックをシンタックスハイライト
   Prism.highlightAllUnder(previewEl);
 
   // 目次（アウトライン）の更新
+  updateOutline();
+}
+
+function restructurePreviewDOM() {
+  const container = previewEl;
+  const children = Array.from(container.childNodes);
+  container.innerHTML = "";
+
+  // 階層を管理するためのスタック
+  // ルート要素（レベル0）から開始
+  const rootWrapper = document.createElement("div");
+  rootWrapper.className = "markdown-section-wrapper level-0";
+  const rootContent = document.createElement("div");
+  rootContent.className = "section-content";
+  rootWrapper.appendChild(rootContent);
+
+  interface StackItem {
+    wrapper: HTMLElement;
+    content: HTMLElement;
+    level: number;
+    title: string;
+    path: string;
+  }
+
+  const stack: StackItem[] = [
+    {
+      wrapper: rootWrapper,
+      content: rootContent,
+      level: 0,
+      title: "root",
+      path: ""
+    }
+  ];
+
+  children.forEach((child) => {
+    if (child.nodeType !== Node.ELEMENT_NODE) {
+      stack[stack.length - 1].content.appendChild(child);
+      return;
+    }
+
+    const el = child as HTMLElement;
+    const tagName = el.tagName.toLowerCase();
+    const isHeading = /^h[1-6]$/.test(tagName);
+
+    if (isHeading) {
+      const level = parseInt(tagName.substring(1), 10);
+      const title = el.textContent?.trim() || "";
+
+      // 現在のヘッダーレベルと同等以上の親をスタックからポップ
+      while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+        stack.pop();
+      }
+
+      const parentItem = stack[stack.length - 1];
+      const parentPath = parentItem.path;
+      const currentPath = parentPath ? `${parentPath} > ${level}:${title}` : `${level}:${title}`;
+
+      // 新しいラッパーとコンテンツエリアの作成
+      const wrapper = document.createElement("div");
+      wrapper.className = `markdown-section-wrapper level-${level}`;
+      wrapper.dataset.path = currentPath;
+      wrapper.dataset.level = level.toString();
+
+      const content = document.createElement("div");
+      content.className = "section-content";
+
+      // ヘッダーに折り畳み用クラスを追加
+      el.classList.add("collapsible-header");
+
+      // 折り畳み用の矢印（アイコン）をヘッダーの先頭に追加
+      const chevron = document.createElement("span");
+      chevron.className = "fold-chevron";
+      chevron.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+      el.insertBefore(chevron, el.firstChild);
+
+      // コラップ状態の復元
+      if (collapsedPreviewHeadings.has(currentPath)) {
+        wrapper.classList.add("collapsed");
+      }
+
+      // 要素を移動
+      wrapper.appendChild(el);
+      wrapper.appendChild(content);
+      parentItem.content.appendChild(wrapper);
+
+      // スタックに追加
+      stack.push({
+        wrapper,
+        content,
+        level,
+        title,
+        path: currentPath
+      });
+
+      // ヘッダーのクリックで折り畳みを切り替える
+      el.addEventListener("click", (e) => {
+        if ((e.target as HTMLElement).closest("a")) return;
+        e.preventDefault();
+        e.stopPropagation();
+        togglePreviewHeadingCollapse(currentPath);
+      });
+    } else {
+      // 通常の要素は現在のスタックトップのコンテンツに追加
+      stack[stack.length - 1].content.appendChild(el);
+    }
+  });
+
+  // コンテナに再構築したDOMを展開
+  while (rootContent.firstChild) {
+    container.appendChild(rootContent.firstChild);
+  }
+}
+
+function togglePreviewHeadingCollapse(path: string) {
+  if (collapsedPreviewHeadings.has(path)) {
+    collapsedPreviewHeadings.delete(path);
+  } else {
+    collapsedPreviewHeadings.add(path);
+  }
+
+  // プレビュー領域の該当するラッパー要素のコラップ状態をトグル
+  const previewWrapper = previewEl.querySelector(`.markdown-section-wrapper[data-path="${CSS.escape(path)}"]`);
+  if (previewWrapper) {
+    previewWrapper.classList.toggle("collapsed", collapsedPreviewHeadings.has(path));
+  }
+}
+
+function toggleTOCHeadingCollapse(path: string) {
+  if (collapsedTOCHeadings.has(path)) {
+    collapsedTOCHeadings.delete(path);
+  } else {
+    collapsedTOCHeadings.add(path);
+  }
   updateOutline();
 }
 
@@ -141,9 +281,10 @@ function updateAutoSaveStatus(state: "off" | "saving" | "saved" | "dirty") {
 // ==========================================
 function updateOutline() {
   outlineListEl.innerHTML = "";
-  const headers = previewEl.querySelectorAll("h1, h2, h3, h4, h5, h6");
-
-  if (headers.length === 0) {
+  
+  // プレビューのラッパー要素からすべてのヘッダーエリアを取得
+  const wrappers = previewEl.querySelectorAll(".markdown-section-wrapper");
+  if (wrappers.length === 0) {
     const emptyMsg = document.createElement("div");
     emptyMsg.className = "outline-item";
     emptyMsg.style.color = "var(--text-secondary)";
@@ -153,13 +294,71 @@ function updateOutline() {
     return;
   }
 
-  headers.forEach((header, index) => {
+  wrappers.forEach((wrapperNode, index) => {
+    const wrapper = wrapperNode as HTMLElement;
+    // level-0 (root) はスキップ
+    if (wrapper.classList.contains("level-0")) return;
+
+    const path = wrapper.dataset.path || "";
+    const level = parseInt(wrapper.dataset.level || "1", 10);
+    const header = wrapper.querySelector(".collapsible-header") as HTMLElement;
+    if (!header) return;
+
+    // ヘッダーテキストを取得 (シェブロンのテキストを除去)
+    const headerTextNode = Array.from(header.childNodes)
+      .find(node => node.nodeType === Node.TEXT_NODE);
+    const title = headerTextNode ? headerTextNode.textContent?.trim() || "" : "";
+
+    // ヘッダー要素にアンカー用のIDを付与 (スムーズスクロールのため)
     const id = `heading-${index}`;
     header.setAttribute("id", id);
 
+    // 親のいずれかが目次で折り畳まれているかチェック
+    let isHiddenByParent = false;
+    const pathSegments = path.split(" > ");
+    for (let i = 0; i < pathSegments.length - 1; i++) {
+      const parentPath = pathSegments.slice(0, i + 1).join(" > ");
+      if (collapsedTOCHeadings.has(parentPath)) {
+        isHiddenByParent = true;
+        break;
+      }
+    }
+
+    if (isHiddenByParent) {
+      // 親が折り畳まれている場合は目次項目を表示しない
+      return;
+    }
+
+    // 子（サブ見出し）を持っているか確認
+    const hasChildren = wrapper.querySelector(".markdown-section-wrapper") !== null;
+    const isCollapsed = collapsedTOCHeadings.has(path);
+
+    // 目次項目のコンテナを作成
+    const itemWrapper = document.createElement("div");
+    itemWrapper.className = `outline-item-container h${level}`;
+    if (isCollapsed) {
+      itemWrapper.classList.add("collapsed");
+    }
+
+    // 折り畳みボタン
+    const foldBtn = document.createElement("button");
+    foldBtn.className = "outline-fold-btn";
+    if (hasChildren) {
+      foldBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+      foldBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleTOCHeadingCollapse(path);
+      });
+    } else {
+      foldBtn.classList.add("empty");
+      foldBtn.innerHTML = ``;
+    }
+
+    // リンク
     const link = document.createElement("a");
-    link.className = `outline-item ${header.tagName.toLowerCase()}`;
-    link.textContent = header.textContent || "";
+    link.className = `outline-item`;
+    link.textContent = title;
     
     // スムーズスクロール
     link.addEventListener("click", (e) => {
@@ -167,7 +366,9 @@ function updateOutline() {
       header.scrollIntoView({ behavior: "smooth" });
     });
 
-    outlineListEl.appendChild(link);
+    itemWrapper.appendChild(foldBtn);
+    itemWrapper.appendChild(link);
+    outlineListEl.appendChild(itemWrapper);
   });
 }
 

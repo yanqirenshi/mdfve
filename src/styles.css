@@ -345,30 +345,82 @@ button:active {
   transform: scale(0.98);
 }
 
+/* 目次（TOC）の階層折り畳みスタイル */
+.outline-item-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.outline-item-container:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.outline-fold-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: transform 0.2s ease, color 0.2s, background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.outline-fold-btn:hover {
+  color: var(--accent-color);
+  background-color: var(--bg-secondary);
+}
+
+.outline-fold-btn svg {
+  transition: transform 0.2s ease;
+  transform: rotate(90deg); /* 展開状態（デフォルト） */
+}
+
+.outline-item-container.collapsed .outline-fold-btn svg {
+  transform: rotate(0deg); /* 折りたたみ状態 */
+}
+
+.outline-fold-btn.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .outline-item {
   display: block;
-  padding: 6px 12px;
+  padding: 6px 8px 6px 4px;
   font-size: 13px;
   color: var(--text-primary);
   text-decoration: none;
-  border-radius: 4px;
-  margin-bottom: 2px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background-color 0.2s, color 0.2s;
+  flex: 1;
+  transition: color 0.2s;
 }
 
-.outline-item:hover {
-  background-color: var(--bg-tertiary);
+.outline-item-container:hover .outline-item {
   color: var(--accent-color);
 }
 
-.outline-item.h1 { font-weight: 600; padding-left: 12px; }
-.outline-item.h2 { padding-left: 24px; color: var(--text-secondary); }
-.outline-item.h3 { padding-left: 36px; color: var(--text-secondary); font-size: 12px; }
-.outline-item.h4, .outline-item.h5, .outline-item.h6 { padding-left: 44px; color: var(--text-secondary); font-size: 11px; }
+/* インデント調整 */
+.outline-item-container.h1 { padding-left: 2px; }
+.outline-item-container.h1 .outline-item { font-weight: 600; }
+.outline-item-container.h2 { padding-left: 14px; }
+.outline-item-container.h2 .outline-item { color: var(--text-secondary); }
+.outline-item-container.h3 { padding-left: 26px; }
+.outline-item-container.h3 .outline-item { color: var(--text-secondary); font-size: 12px; }
+.outline-item-container.h4, .outline-item-container.h5, .outline-item-container.h6 { padding-left: 38px; }
+.outline-item-container.h4 .outline-item, .outline-item-container.h5 .outline-item, .outline-item-container.h6 .outline-item { color: var(--text-secondary); font-size: 11px; }
 
 /* エディタとプレビューのパネル */
 .editor-pane, .preview-pane {
@@ -998,5 +1050,51 @@ button:active {
 
 .theme-cyberpunk .view-toggle-btn:hover {
   color: #ff007f;
+}
+
+/* プレビュー画面の折り畳みスタイル */
+.markdown-section-wrapper {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+/* ヘッダーの左側に矢印を表示する */
+.collapsible-header .fold-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease, color 0.2s;
+  flex-shrink: 0;
+}
+
+.collapsible-header:hover .fold-chevron {
+  color: var(--accent-color);
+}
+
+/* 展開状態（デフォルト）は下向きにする */
+.collapsible-header .fold-chevron svg {
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+/* コラップ状態（折りたたまれ） */
+.markdown-section-wrapper.collapsed > .section-content {
+  display: none !important;
+}
+
+.markdown-section-wrapper.collapsed > .collapsible-header .fold-chevron svg {
+  transform: rotate(0deg);
 }
 
